@@ -1,14 +1,22 @@
 %%
-%	Bootstrap bivariate confidence regions
+%	bivariateConfidence.m
+%
+%	Bootstrap bivariate confidence regions.
 %
 %	Each row of X and Y is a replicate. (Columns of X and Y are points in a series.)
 %	Here datapoints are not paired, and X and Y can have different numbers of 
 %	replicates.
-%	
-function bivariateConfidence(X,Y,nBoots, plotColor)
-
-	% Define confidence region desired
-    alpha = 1 - .95;
+%
+%	args:
+%		X: Data matrix for X axis. Rows are replicates, columns are points in a series.
+%		Y: Data matrix for Y axis. Rows are replicates, columns are points in a series.
+%		alpha: %-ile contour line to draw. (eg. alpha = 0.05)
+%		resolution: For histogram binning for contour calculation. (eg. 64)
+%		nBoots:	# of bootstrap samples to generate.
+%		plotColor:	eg. 'b'
+%
+%%
+function bivariateConfidence( X, Y, alpha, resolution, nBoots, plotColor)
 
     nX = size(X,1);
     nY = size(Y,1);
@@ -32,13 +40,14 @@ function bivariateConfidence(X,Y,nBoots, plotColor)
 
 	% Use the resampled mean trend-lines. Make a 2D histogram of cumulative
 	% density as we approach the data trend-line
-    [N, Xbins, Ybins] = lineHist(mXr,mYr, meanX, meanY);
+    [N, Xbins, Ybins] = lineHist(mXr,mYr, meanX, meanY, resolution);
 
 
 	  % Plot a histogram of cumulative density approaching the mean.
       subplot(1,2,1);
       image(Xbins, Ybins, N'./max(N(:)),'CDataMapping','scaled');
       set(gca,'YDir','normal'); 
+	  title('Cumulative density of re-sampled trend-lines');
      
 	  % Find the contour at alpha/2 approaching the mean 
 	  subplot(1,2,2);
@@ -46,13 +55,14 @@ function bivariateConfidence(X,Y,nBoots, plotColor)
       set(h,'LineStyle','none');
       set(get(h,'Children'),'FaceAlpha',.5,'FaceColor',plotColor,'EdgeColor','none');
       plot(meanX,meanY,'.-','Color',plotColor); 
+	  title('Contour');
 
 % Make a cumulative 2D histogram of X and Y resamples as we approach the mean trend-line
-function [N, Xbins, Ybins] = lineHist(X,Y,meanX,meanY)
+function [N, Xbins, Ybins] = lineHist(X,Y,meanX,meanY, resolution)
 
 	% Determine how finely to grid for the joint histogram
     overSample = 2;
-    axPoints = 64;
+    axPoints = resolution;
     minX = min(X(:)); maxX = max(X(:));
     minY = min(Y(:)); maxY = max(Y(:));
     Xbins = linspace(minX,maxX,axPoints);

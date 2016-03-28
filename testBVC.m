@@ -1,6 +1,7 @@
 %% 
 %	Example code for bivariate confidence intervals
 %
+%%
 function testBVC()
 
 	% Define the mean points
@@ -29,6 +30,10 @@ function testBVC()
 
 	Y
 
-	bivariateConfidence(X, Y, 200, 'b');
+	alpha = 0.05;
+	resolution = 64;
+	nBoots = 200;
+	plotColor = 'b';
+	bivariateConfidence(X, Y, alpha, resolution, nBoots, plotColor);
 
 
